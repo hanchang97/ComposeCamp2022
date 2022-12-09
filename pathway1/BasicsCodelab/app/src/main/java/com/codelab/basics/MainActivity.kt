@@ -26,12 +26,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        // xml의 setContentView 대신 setContent 사용
     }
 }
 
 @Composable
 fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+    Surface(color = MaterialTheme.colors.primary) {
+        Text(text = "Hello $name!")
+    }
 }
 
 @Preview(showBackground = true)
