@@ -1,6 +1,7 @@
 package com.codelab.basics
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -8,7 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,11 +37,19 @@ private fun MyApp(
         for (name in names) {
             Greeting(name = name)
         }
-    }
+    }.also { Log.e("AppTest", "Outer Column Recomposition") }
+    // 최초 한 번 호출
 }
 
 @Composable
 fun Greeting(name: String) {
+    val testNum = remember { mutableStateOf(1) }
+    var expanded by remember { mutableStateOf(false) }
+    val extraPadding = if (expanded) 48.dp else 0.dp
+
+    Log.e("AppTest", "Greeting called")
+    // state 객체가 컴포저블 함수 내부에 있으므로 리컴포지션 시 매번 호출
+
     Surface(
         color = MaterialTheme.colors.primary,
         modifier = Modifier.padding(0.dp, 10.dp)
@@ -51,21 +60,25 @@ fun Greeting(name: String) {
                 .padding(24.dp)
         ) {
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(bottom = extraPadding)
             ) {
                 Text(text = "Hello")
                 Text(text = name)
-            }
-            ElevatedButton(onClick = {
-                // 클릭 시 동작
+            }.also { Log.e("AppTest", "Column Recomposition") }
+            ElevatedButton(onClick = { // 클릭 시 동작
+                testNum.value = testNum.value + 1
+                Log.e("AppTest", "testNum : ${testNum}")
+                expanded = !expanded
             }) {
                 Text(
-                    text = "Show more",
+                    text = "Show Current Number : ${testNum.value}",
                     color = Color.Black
-                )
-            }
-        }
-    }
+                ).also { Log.e("AppTest", "Text Recomposition") }
+            }.also { Log.e("AppTest", "ElevatedButton Recomposition") }
+        }.also { Log.e("AppTest", "Row Recomposition") }
+    }.also { Log.e("AppTest", "Surface Recomposition") }
 }
 
 @Preview(showBackground = true, widthDp = 360)
